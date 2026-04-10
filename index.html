@@ -193,8 +193,7 @@
   <div class="main">
 
   <div class="photo">
-    <!-- Replace src with your photo path, e.g. src="images/farm.jpg" -->
-    <div class="photo-placeholder">Photo coming soon</div>
+    <img src="assets/images/winter-barn.jpg" alt="Beinn Breagh Farm in winter">
   </div>
 
   <div class="signup">
@@ -204,13 +203,14 @@
       <p>651 Twin Oaks Road, Middleton, Nova Scotia</p>
       <p>Phone: <a href="tel:902091147">902-209-1147</a></p>
     </header>
-    <p>Feel free to stop by, give us a call, or send us an email at <a href="mailto:bros@beinnbreaghfarm.ca">bros@beinnbreaghfarm.ca</a> by using the form.</p>
-    <form action="#" method="post">
+    <p>Feel free to stop by, give us a call, or use the form to send us an email at <a href="mailto:bros@beinnbreaghfarm.ca">bros@beinnbreaghfarm.ca</a>.</p>
+    <form id="contact-form">
       <input type="text" name="name" placeholder="Your name" required>
       <input type="email" name="email" placeholder="Your email" required>
       <textarea name="message" placeholder="Your message" required></textarea>
       <button type="submit">Send message</button>
     </form>
+    <p id="form-status" style="display:none; margin-top:16px;"></p>
   </div>
 
   </div><!-- /.main -->
@@ -219,5 +219,43 @@
     &copy; 2026 Beinn Breagh Commercial Beef
   </footer>
 
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const supabase = createClient(
+      'https://jqrnhttdwbatkrrekkpl.supabase.co',
+      'sb_publishable_ohLtq7lsVfRBPtS6QT2daw_L09nh31s'
+    );
+
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector('button');
+      const status = document.getElementById('form-status');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      const { error } = await supabase.from('contact_submissions').insert({
+        name: form.name.value,
+        email: form.email.value,
+        message: form.message.value,
+        project_id: 'c0a80101-0000-4000-a000-000000000001',
+      });
+
+      status.style.display = 'block';
+      if (error) {
+        status.style.color = '#c0392b';
+        status.textContent = 'Something went wrong. Please try again or call us directly.';
+        btn.disabled = false;
+        btn.textContent = 'Send message';
+      } else {
+        status.style.color = '#5f8463';
+        status.textContent = 'Message sent — we\'ll be in touch soon!';
+        form.reset();
+        btn.textContent = 'Send message';
+      }
+    });
+  </script>
 </body>
 </html>
